@@ -6,14 +6,15 @@ pipeline {
     stages{
         stage('Build Maven'){
             steps{
-                checkout scmGit(branches: [[name: '*/main']], extensions: [], userRemoteConfigs: [[credentialsId: 'system1', url: 'https://github.com/anoopkoomullil/devops-automation']])
-                cmd_failsafe('mvn clean install')
+                //checkout scmGit(branches: [[name: '*/main']], extensions: [], userRemoteConfigs: [[credentialsId: 'system1', url: 'https://github.com/anoopkoomullil/devops-automation']])
+                checkout scmGit(branches: [[name: '*/main']], extensions: [], userRemoteConfigs: [[url: 'https://github.com/anoopkoomullil/devops-automation']])
+                sh 'mvn clean install'
             }
         }
         stage('Build docker image'){
             steps{
                 script{
-                    cmd_failsafe('docker build -t anoopkoomullil/devops-integration .')
+                    sh 'docker build -t anoopkoomullil/devops-integration .'
                 }
             }
         }
@@ -21,9 +22,9 @@ pipeline {
             steps{
                 script{
                    withCredentials([string(credentialsId: 'dockerhub-pwd', variable: 'dockerhubpwd')]) {
-                   cmd_failsafe('docker login -u anoopkoomullil -p ${dockerhubpwd}')
+                   sh 'docker login -u anoopkoomullil -p ${dockerhubpwd}'
                 }
-                   cmd_failsafe('docker push anoopkoomullil/devops-integration')
+                   sh 'docker push anoopkoomullil/devops-integration'
                 }
             }
         }
@@ -35,12 +36,4 @@ pipeline {
             }
         }
     }
-}
-def cmd(command) {
-    // при запуске Jenkins не в режиме UTF-8 нужно написать chcp 1251 вместо chcp 65001
-    if (isUnix()) { sh "${command}" } else { bat "chcp 65001\n${command}"}
-}
-def cmd_failsafe(command) {
-    // при запуске Jenkins не в режиме UTF-8 нужно написать chcp 1251 вместо chcp 65001
-    if (isUnix()) { sh "${command}" } else { bat (script: "chcp 65001\n${command}",  returnStatus: true)}
 }
