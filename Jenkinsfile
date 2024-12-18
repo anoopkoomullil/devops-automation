@@ -7,15 +7,15 @@ pipeline {
         stage('Build Maven'){
             steps{
                 checkout scmGit(branches: [[name: '*/main']], extensions: [], userRemoteConfigs: [[url: 'https://github.com/anoopkoomullil/devops-automation']])
-                sh 'mvn clean install'
-                //cmd_failsafe('mvn clean install')
+                //sh 'mvn clean install'
+                cmd_failsafe('mvn clean install')
             }
         }
         stage('Build docker image'){
             steps{
                 script{
-                    sh 'docker build -t anoopkoomullil/devops-integration .'
-                    //cmd_failsafe('docker build -t anoopkoomullil/devops-integration .')
+                    //sh 'docker build -t anoopkoomullil/devops-integration .'
+                    cmd_failsafe('docker build -t anoopkoomullil/devops-integration .')
                 }
             }
         }
@@ -23,11 +23,11 @@ pipeline {
             steps{
                 script{
                    withCredentials([string(credentialsId: 'dockerhub-pwd', variable: 'dockerhubpwd')]) {
-                   sh 'docker login -u anoopkoomullil -p ${dockerhubpwd}'
-                   //cmd_failsafe('docker login -u anoopkoomullil -p ${dockerhubpwd}')
+                   //sh 'docker login -u anoopkoomullil -p ${dockerhubpwd}'
+                   cmd_failsafe('docker login -u anoopkoomullil -p ${dockerhubpwd}')
                 }
-                   sh 'docker push anoopkoomullil/devops-integration'
-                   //cmd_failsafe('docker push anoopkoomullil/devops-integration')
+                   //sh 'docker push anoopkoomullil/devops-integration'
+                   cmd_failsafe('docker push anoopkoomullil/devops-integration')
                 }
             }
         }
